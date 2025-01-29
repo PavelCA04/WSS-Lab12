@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
 
   public getMessageClass(message: PictochatMessage) {
     if (message.messageType === MessageType.notification) {
-      return ['justify-center rounded-full bg-slate-100'];
+      return ['justify-center rounded-full bg-gray-600 text-white'];
     }
     return [];
   }
