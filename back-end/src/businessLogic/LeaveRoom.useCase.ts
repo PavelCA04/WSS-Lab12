@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { UserRepository } from "../database/user.database";
 import { RoomRepository } from "../database/room.repository";
+import { TopicsToSend } from "../constants";
 
 export type LeaveRoomCommand = {
   username: string;
@@ -19,6 +20,7 @@ export class LeaveRoomHandler {
   }
 
   public handle(command: LeaveRoomCommand): LeaveRoomResult {
+    console.log('Leave Room', command);
     // TODO: implement
     const { username }  = command;
     
@@ -42,16 +44,17 @@ export class LeaveRoomHandler {
     }
     
     // Quitarle un participante a la sala
-    room.numberOfParticipants -= 1;
     
     //implementar la logica de salir de la sala
     this._socket.leave(user.currentRoom!);
 
     //Actualizar el usuario
     user.currentRoom = undefined;
-
+    
     //Mandar el mensaje de que alguien un usuario ha salido
-    this._socket.to(user.currentRoom!).emit('USER_LEFT', user.username);
-    return { success: true };
+    this._socket.emit(TopicsToSend.GENERAL_NOTIFICAITON, {
+        message: `User ${command.username} has left the room`,
+        date: new Date()
+      });    return { success: true };
   }
 }

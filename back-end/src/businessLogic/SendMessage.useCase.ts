@@ -24,17 +24,17 @@ export class SendMessageUseCase {
   }
 
   public handle(command: SendMessageCommand): SendMessageResult {
-    const user = this.userRepository.getUsers().find((user) => user.username === command.username);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    console.log('Send Message', command);
+    
     const message: PictochatMessage = {
       messageType: MessageType.direct_message,
       content: command.content,
       sent: new Date(),
-      sentBy: user
+      sentBy: undefined,
     };
-    this.socket.to(user.currentRoom??"").emit('NEW_MESSAGE', message);
+    console.log('Send Message 1', command);
+    this.socket.emit('NEW_MESSAGE', message);
+    console.log('Send Message 2', command);
     return { success: true };
   }
 }

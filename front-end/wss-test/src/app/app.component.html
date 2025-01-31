@@ -1,18 +1,35 @@
 <div class="flex flex-row w-full h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+
   <!-- Left Column: Rooms -->
-  <div class="flex flex-col w-1/3 p-6 space-y-6 border-r border-gray-700">
+  <div class="flex flex-col w-1/3 p-6 space-y-6 border-r border-gray-700 bg-gray-900 h-screen overflow-y-auto">
     <h2 class="text-xl font-bold mb-4">Salas</h2>
+    <button
+      class="mt-4 w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
+      (click)="connect()"
+    >Conectar
+    </button>
+    <button
+      class="mt-4 w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
+      (click)="showRoomDialog()"
+    >Crear Sala
+    </button>
     <div *ngFor="let item of rooms$ | async; let i = index" class="p-4 bg-gray-800 shadow-lg rounded-xl hover:shadow-xl transition">
       <div class="text-lg font-semibold text-blue-400">Sala {{ item.name }}</div>
       <div class="text-sm text-gray-400 mt-1">
-        {{ item.numberOfParticipants }} participantes activos
       </div>
       <button
-        class="mt-4 w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
-        (click)="connect()"
+        class="mt-4 w-full px-4 py-2 text-white rounded-md transition"
+        [class.bg-blue-600]="activeRoom !== item.name"
+        [class.hover:bg-blue-700]="activeRoom !== item.name"
+        [class.bg-red-600]="activeRoom === item.name"
+        [class.hover:bg-red-700]="activeRoom === item.name"
+        [class.opacity-20]="activeRoom !== undefined && activeRoom !== item.name"
+        (click)="activeRoom === item.name ? leaveRoom(item.name) : joinRoom(item.name)"
+        [disabled]="activeRoom !== undefined && activeRoom !== item.name"
       >
-        Conectar
+        {{ activeRoom === item.name ? 'Salir' : 'Unirse' }}
       </button>
+    
     </div>
   </div>
 
@@ -20,24 +37,24 @@
   <div class="flex flex-col w-1/3 bg-gray-900 p-6 border-r border-gray-700">
     <h2 class="text-xl font-bold mb-4">Chat</h2>
     <div class="flex flex-col h-full space-y-2 overflow-y-auto bg-gray-800 p-4 rounded-lg">
-      <div *ngIf="currentRoom">
-        <div
-          *ngFor="let item of currentRoom.messageHistory; let i = index"
-          class="p-3 rounded-md text-sm"
-          [ngClass]="getMessageClass(item)"
-        >
-          {{ item.content }}
+        <div *ngIf="messages.length === 0">No messages yet.</div>
+        <div *ngFor="let item of messages; let i = index">
+          <div class="p-3 rounded-md text-sm bg-gray-600 text-white">
+            {{ item.message }}
+          </div>
         </div>
-      </div>
+        
     </div>
     <div class="mt-4 flex items-center space-x-2">
       <input
         type="text"
         placeholder="Escribe un mensaje..."
         class="flex-1 px-4 py-2 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
-      />
+        [(ngModel)]="messageText"
+        />
       <button
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        (click)="sendMessage()"
       >
         Enviar
       </button>
@@ -45,7 +62,7 @@
   </div>
 
   <!-- Right Column: Notifications -->
-  <div class="flex flex-col w-1/3 bg-gray-900 p-6 space-y-6">
+  <div class="flex flex-col w-1/3 p-6 space-y-6 border-r border-gray-700 bg-gray-900 h-screen overflow-y-auto">
     <h2 class="text-xl font-bold mb-4">Notificaciones</h2>
     <div *ngFor="let item of notifications; let i = index" class="flex flex-col p-4 bg-gray-800 shadow-lg rounded-xl hover:shadow-xl transition space-y-2">
       <div class="flex items-center">

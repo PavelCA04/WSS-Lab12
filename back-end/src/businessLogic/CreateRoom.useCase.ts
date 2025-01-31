@@ -26,6 +26,9 @@ export class CreateRoomHandler {
       .getRooms()
       .map((room) => room.name);
 
+    console.log("Existing rooms: ", name);
+    
+
     // Check if the name is empty or already exists
     if (!name || existingRooms.includes(name)) {
       console.log("Room name is empty or already exists");
@@ -53,6 +56,7 @@ export class CreateRoomHandler {
     });
 
     this._socket.emit(TopicsToSend.ROOM_CREATED, room);
+    
     return { room };
   }
 }

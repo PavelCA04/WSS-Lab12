@@ -47,6 +47,8 @@ io.on('connection', (socket: Socket) => {
   console.log(`Connected ${id}`);
   socket.join(GeneralGroups.GENERAL_NOTIFICATIONS);
 
+  socket
+
 
   socket.on(RequestsTopics.ASSIGN_USER, (createUserRequest) => {
     const userRepository = new UserRepository();
@@ -58,20 +60,28 @@ io.on('connection', (socket: Socket) => {
   });
 
   socket.on(RequestsTopics.CREATE_ROOM, (createRoomRequest) => {
+    console.log(createRoomRequest.name);
+    
     const roomRepository = new RoomRepository();
     const createRoomHandler = new CreateRoomHandler(socket, roomRepository);
 
-    createRoomHandler.handle({ name: JSON.parse(createRoomRequest).name });
+    createRoomHandler.handle({ name: createRoomRequest.name });
   });
 
   socket.on(RequestsTopics.JOIN_ROOM, (roomRequeststr) => {
     const userRepository = new UserRepository();
-    const joinRoomHandler = new JoinRoomHandler(socket, userRepository);
-    const roomRequest = JSON.parse(roomRequeststr);
-    joinRoomHandler.handle({ room: roomRequest.room, username: roomRequest.username });
+    const roomRepository = new RoomRepository();
+    
+    const joinRoomHandler = new JoinRoomHandler(socket, userRepository, roomRepository);
+    
+    console.log('Join room request', roomRequeststr.username );
+    
+    joinRoomHandler.handle({ room: roomRequeststr.room, username: roomRequeststr.username });
   });
 
   socket.on(RequestsTopics.LEAVE_ROOM, (leaveRequest) => {
+    console.log('Leave room request', leaveRequest.username);
+    
     const userRepository = new UserRepository();
     const roomRepository = new RoomRepository();
     const leaveRoomHandler = new LeaveRoomHandler(socket, userRepository, roomRepository);
@@ -80,16 +90,22 @@ io.on('connection', (socket: Socket) => {
   });
 
   socket.on(RequestsTopics.NEW_MESSAGE, (newMessage) => {
+    console.log('New message', newMessage);
+    
     const userRepository = new UserRepository();
     const newMessageUseCase: SendMessageUseCase = new SendMessageUseCase(
       socket,
       userRepository
     );
 
+    console.log('New message 1', newMessage);
+
     newMessageUseCase.handle({
       content: newMessage.content,
       username: newMessage.userId
     });
+
+    console.log('New message 2', newMessage);
   });
 
   socket.on('GENERAL_NOTIFICATION', () => {

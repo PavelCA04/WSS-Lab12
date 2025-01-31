@@ -1,0 +1,16 @@
+<div class="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-5 ">
+    <h2 class="text-lg font-semibold mb-4">Create Room</h2>
+    <form [formGroup]="roomForm">
+        <mat-form-field class="w-full">
+            <mat-label>Room Name</mat-label>
+            <input matInput formControlName="roomName">
+            <mat-error *ngIf="roomForm.get('roomName')?.invalid">
+              Room name must be at least 3 characters.
+            </mat-error>
+        </mat-form-field>
+        <div class="flex justify-end space-x-2 mt-4 text-white">
+            <button mat-button class="text-white" (click)="onClose()">Leave</button>
+            <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="roomForm.invalid" class="text-white">Create</button>
+        </div>
+    </form>
+</div>
